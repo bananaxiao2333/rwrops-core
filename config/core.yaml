@@ -1,87 +1,312 @@
-# RWR 载具解析配置 - 最终版（支持重复标签数组 + 继承 + 归一化）
+# RWR 车辆解析配置
 package_path:
-  - "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RunningWithRifles\\media\\packages\\vanilla"
+  - "C:\\Users\\hongx\\Documents\\test_sub"
+output_format: "json"
+pretty_print: true
+include_source: false
 
-# 继承支持（自动读取 file="vehicle_base.vehicle"）
-inherit:
-  enabled: true
+defaults:
+  inherit_enabled: true
   base_attr: "file"
 
-# 实体解析规则（严格遵循你的格式）
 entities:
-  - vehicle:
-      # ====================== 根属性 ======================
-      - tag: "@name"
-        abbr: "name"
-        to: "name"
-      - tag: "@key"
-        abbr: "key"
-        to: "key"
-      - tag: "@file"
-        abbr: "inherit"
-        to: "inherit_from"
-      - tag: "@respawn_time"
-        abbr: "respawn"
-        to: "respawn_time"
-      - tag: "@time_to_live_unsteerable"
-        abbr: "ttl_unsteer"
-        to: "uncontrollable_ttl"
-      - tag: "@minimum_fill_requirement"
-        abbr: "fuel_min"
-        to: "min_fuel"
+  vehicle:
+    selector: "vehicle"
+    name: "vehicle"
+    is_array: false
 
-      # ====================== 标签组 ======================
-      - tag: "tag/@name"
-        abbr: "tags"
-        to: "tags"
+    attributes:
+      - source: "@name"
+        target: "name"
+      - source: "@key"
+        target: "key"
+      - source: "@file"
+        target: "inherit_from"
+      - source: "@respawn_time"
+        target: "respawn_time"
+        transform: "to_float"
+      - source: "@time_to_live_unsteerable"
+        target: "unsteerable_ttl"
+        transform: "to_float"
+      - source: "@map_view_atlas_index"
+        target: "map_index"
+        transform: "to_int"
+      - source: "@minimum_fill_requirement"
+        target: "min_fuel"
+        transform: "to_float"
 
-      # ====================== 轮胎（多组） ======================
-      - tag: "tire_set"
-        abbr: "tires"
-        to: "tires"
-        multi: true # 标记：多元素 → 数组
+    children:
+      tags:
+        selector: "tag"
+        name: "tags"
+        is_array: true
+        attributes:
+          - source: "@name"
+            target: "name"
 
-      # ====================== 乘员（多座位） ======================
-      - tag: "character_slot"
-        abbr: "seats"
-        to: "seats"
-        multi: true # 数组
+      tire_sets:
+        selector: "tire_set"
+        name: "tire_sets"
+        is_array: true
+        attributes:
+          - source: "@offset"
+            target: "offset"
+            transform: "parse_vector3"
+          - source: "@radius"
+            target: "radius"
+            transform: "to_float"
 
-      # ====================== 核心：目标优先级（重复标签！） ======================
-      - tag: "target_factors"
-        abbr: "targets"
-        to: "target_factors"
-        multi: true
-        sub_attrs:
-          - tag: "@tag"
-            to: "tag"
-          - tag: "@distance"
-            to: "distance"
-          - tag: "@direction"
-            to: "direction"
-          - tag: "@squad_command"
-            to: "squad_command"
-          - tag: "@base_score"
-            to: "score"
+      control:
+        selector: "control"
+        name: "control"
+        is_array: false
+        attributes:
+          - source: "@max_speed"
+            target: "max_speed"
+            transform: "to_float"
+          - source: "@acceleration"
+            target: "acceleration"
+            transform: "to_float"
+          - source: "@max_reverse_speed"
+            target: "max_reverse_speed"
+            transform: "to_float"
+          - source: "@min_health_to_steer"
+            target: "min_health_to_steer"
+            transform: "to_float"
+          - source: "@max_rotation"
+            target: "max_rotation"
+            transform: "to_float"
+          - source: "@max_water_depth"
+            target: "max_water_depth"
+            transform: "to_float"
+          - source: "@steer_smoothening"
+            target: "steer_smoothening"
+            transform: "to_float"
 
-      # ====================== 音效（多条） ======================
-      - tag: "rev_sound"
-        abbr: "engine_sfx"
-        to: "engine_sounds"
-        multi: true
-      - tag: "sound"
-        abbr: "sfx"
-        to: "sounds"
-        multi: true
+      physics:
+        selector: "physics"
+        name: "physics"
+        is_array: false
+        attributes:
+          - source: "@max_health"
+            target: "max_health"
+            transform: "to_float"
+          - source: "@blast_damage_threshold"
+            target: "blast_damage_threshold"
+            transform: "to_float"
+          - source: "@mass"
+            target: "mass"
+            transform: "to_float"
+          - source: "@broken_mass"
+            target: "broken_mass"
+            transform: "to_float"
+          - source: "@remove_collision_threshold"
+            target: "remove_collision_threshold"
+            transform: "to_float"
+          - source: "@extent"
+            target: "extent"
+            transform: "parse_vector3"
+          - source: "@offset"
+            target: "offset"
+            transform: "parse_vector3"
+          - source: "@top_offset"
+            target: "top_offset"
+            transform: "parse_vector3"
+          - source: "@collision_model_pos"
+            target: "collision_model_pos"
+            transform: "parse_vector3"
+          - source: "@collision_model_extent"
+            target: "collision_model_extent"
+            transform: "parse_vector3"
+          - source: "@visual_offset"
+            target: "visual_offset"
+            transform: "parse_vector3"
+          - source: "@friction_offset"
+            target: "friction_offset"
+            transform: "to_float"
+          - source: "@drag_offset"
+            target: "drag_offset"
+            transform: "to_float"
 
-      # ====================== 特效（多条） ======================
-      - tag: "effect"
-        abbr: "fx"
-        to: "effects"
-        multi: true
+      turret:
+        selector: "turret"
+        name: "turret"
+        is_array: false
+        attributes:
+          - source: "@offset"
+            target: "offset"
+            transform: "parse_vector3"
+          - source: "@weapon_key"
+            target: "weapon_key"
+          - source: "@weapon_offset"
+            target: "weapon_offset"
+            transform: "parse_vector3"
+          - source: "@weapon_recoil"
+            target: "weapon_recoil"
+            transform: "to_float"
+          - source: "@max_rotation_step"
+            target: "max_rotation_step"
+            transform: "to_float"
 
-      # ====================== 事件奖励（多条） ======================
-      - tag: "event"
-        abbr: "events"
-        to: "events"
-        multi: true
+      visuals:
+        selector: "visual"
+        name: "visuals"
+        is_array: true
+        attributes:
+          - source: "@class"
+            target: "class"
+          - source: "@key"
+            target: "key"
+          - source: "@mesh_filename"
+            target: "mesh"
+          - source: "@texture_filename"
+            target: "texture"
+
+      character_slots:
+        selector: "character_slot"
+        name: "character_slots"
+        is_array: true
+        attributes:
+          - source: "@type"
+            target: "type"
+          - source: "@position"
+            target: "position"
+            transform: "parse_vector3"
+          - source: "@rotation"
+            target: "rotation"
+            transform: "to_float"
+          - source: "@exit_rotation"
+            target: "exit_rotation"
+            transform: "to_float"
+          - source: "@hiding"
+            target: "hiding"
+            transform: "to_float"
+        children:
+          weapon_slots:
+            selector: "weapon_slot"
+            name: "weapon_slots"
+            is_array: true
+            attributes:
+              - source: "@allowed"
+                target: "allowed_weapon"
+
+      rev_sounds:
+        selector: "rev_sound"
+        name: "rev_sounds"
+        is_array: true
+        attributes:
+          - source: "@filename"
+            target: "filename"
+          - source: "@low_pitch"
+            target: "low_pitch"
+            transform: "to_float"
+          - source: "@high_pitch"
+            target: "high_pitch"
+            transform: "to_float"
+          - source: "@low_rev"
+            target: "low_rev"
+            transform: "to_float"
+          - source: "@high_rev"
+            target: "high_rev"
+            transform: "to_float"
+          - source: "@volume"
+            target: "volume"
+            transform: "to_float"
+
+      sounds:
+        selector: "sound"
+        name: "sounds"
+        is_array: true
+        attributes:
+          - source: "@key"
+            target: "key"
+          - source: "@filename"
+            target: "filename"
+
+      effects:
+        selector: "effect"
+        name: "effects"
+        is_array: true
+        attributes:
+          - source: "@event_key"
+            target: "event"
+          - source: "@type"
+            target: "type"
+          - source: "@key"
+            target: "key"
+          - source: "@surface_tag"
+            target: "surface_tag"
+          - source: "@size"
+            target: "size"
+            transform: "to_float"
+          - source: "@atlas_index"
+            target: "atlas_index"
+            transform: "to_int"
+          - source: "@layer"
+            target: "layer"
+            transform: "to_int"
+          - source: "@ref"
+            target: "ref"
+          - source: "@use_surface_color"
+            target: "use_surface_color"
+            transform: "to_bool"
+          - source: "@value"
+            target: "value"
+            transform: "to_float"
+          - source: "@offset"
+            target: "offset"
+            transform: "parse_vector3"
+          - source: "@post_processing"
+            target: "post_processing"
+            transform: "to_bool"
+          - source: "@shadow"
+            target: "shadow"
+            transform: "to_bool"
+
+      events:
+        selector: "event"
+        name: "events"
+        is_array: true
+        attributes:
+          - source: "@key"
+            target: "key"
+        children:
+          trigger:
+            selector: "trigger"
+            name: "trigger"
+            is_array: false
+            attributes:
+              - source: "@class"
+                target: "class"
+          result:
+            selector: "result"
+            name: "result"
+            is_array: false
+            attributes:
+              - source: "@class"
+                target: "class"
+              - source: "@xp"
+                target: "xp"
+                transform: "to_float"
+              - source: "@rp"
+                target: "rp"
+                transform: "to_float"
+              - source: "@instance_class"
+                target: "instance_class"
+              - source: "@instance_key"
+                target: "instance_key"
+              - source: "@min_amount"
+                target: "min_amount"
+                transform: "to_int"
+              - source: "@max_amount"
+                target: "max_amount"
+                transform: "to_int"
+              - source: "@offset"
+                target: "offset"
+                transform: "parse_vector3"
+              - source: "@position_spread"
+                target: "position_spread"
+                transform: "parse_vector2"
+              - source: "@direction_spread"
+                target: "direction_spread"
+                transform: "parse_vector2"

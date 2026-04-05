@@ -1,12 +1,16 @@
+import json
 import logging
 import mimetypes
 import os
 from pathlib import Path
 import sys
+from bs4 import BeautifulSoup
+from tqdm import tqdm
 import yaml
 from util import Clogger
 from util.classes import Config, Temp
 from util.file_utils import file_reader, walk_dir, xml_parser_factory
+from util.ops import parse_file
 from util.timer import timer
 
 Clogger.init_color_logger()
@@ -26,11 +30,11 @@ def main_procces(config: Config):
                 try:
                     data = file_reader(path, size=5)
                     if data.startswith("<"):
-                        temp.conf_file.append(os.path.basename(path))
+                        temp.conf_file.append(str(path))
                     else:
                         raise RuntimeError
                 except:
-                    temp.res_file.append(os.path.basename(path))
+                    temp.res_file.append(str(path))
                     continue
         return temp
 
@@ -51,6 +55,14 @@ def main_procces(config: Config):
         f"configuration types: {list(conf_type.keys())} ")
     Plogger.debug(
         f"resource: {list(res_type.keys())} ")
+
+    with tqdm(range(len(temp.conf_file)), desc="Files") as pbar:
+        for item in temp.conf_file:
+            data: str = file_reader(Path(item))
+            xml_content: BeautifulSoup = xml_parser_factory(data)
+            temp = parse_file(content=xml_content, config=config, temp=temp)
+            pbar.update()
+    print(json.dumps(temp.final, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

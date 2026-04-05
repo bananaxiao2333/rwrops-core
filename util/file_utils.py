@@ -14,11 +14,12 @@ def file_reader(path: Path, size: int = -1) -> str:
         f_charinfo = chardet.detect(r)
         encoding = f_charinfo['encoding']
     # logger.debug(f"reading '{path}' in '{encoding}'")
-    with open(path, 'r', encoding=encoding, errors="ignore") as file:
+    with open(path, 'r', encoding=encoding, errors="replace") as file:
         return file.read(size)
 
 
 def xml_parser_factory(content: str) -> BeautifulSoup:
+    content = content.encode('unicode_escape').decode('ascii')
     soup = BeautifulSoup(content, "xml")
     return soup
 
