@@ -19,7 +19,7 @@ def file_reader(path: Path, size: int = -1) -> str:
 
 
 def xml_parser_factory(content: str) -> BeautifulSoup:
-    content = content.encode('unicode_escape').decode('ascii')
+
     soup = BeautifulSoup(content, "xml")
     return soup
 

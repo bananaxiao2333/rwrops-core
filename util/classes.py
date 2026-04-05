@@ -23,15 +23,18 @@ class AttributeMapping:
     source: str
     target: str
     transform: Optional[TransformType] = None
+    flatten_to_root: bool = False
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'AttributeMapping':
         transform_str = data.get('transform')
         transform = TransformType(transform_str) if transform_str else None
+        flatten_to_root = data.get('flatten_to_root', False)
         return cls(
             source=data['source'],
             target=data['target'],
-            transform=transform
+            transform=transform,
+            flatten_to_root=flatten_to_root
         )
 
 
@@ -82,6 +85,19 @@ class Config:
     defaults: Dict[str, Any] = field(default_factory=dict)
     entities: Dict[str, EntityConfig] = field(default_factory=dict)
 
+    def __post_init__(self):
+        """Convert dictionary entities to EntityConfig objects after initialization."""
+        if isinstance(self.entities, dict):
+            converted_entities = {}
+            for entity_name, entity_data in self.entities.items():
+                if isinstance(entity_data, dict):
+                    converted_entities[entity_name] = EntityConfig.from_dict(entity_data)
+                elif isinstance(entity_data, EntityConfig):
+                    converted_entities[entity_name] = entity_data
+                else:
+                    raise ValueError(f"Invalid entity configuration for {entity_name}")
+            self.entities = converted_entities
+
     @field_validator('package_path')
     def path_must_exists(cls, v):
         for item in v:
@@ -108,6 +124,8 @@ class Config:
                 }
                 if attr.transform:
                     attr_dict['transform'] = attr.transform.value
+                if attr.flatten_to_root:
+                    attr_dict['flatten_to_root'] = attr.flatten_to_root
                 result['attributes'].append(attr_dict)
 
         # 递归转换子实体

@@ -1,9 +1,7 @@
 import json
 import logging
-import mimetypes
 import os
 from pathlib import Path
-import sys
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
@@ -62,7 +60,8 @@ def main_procces(config: Config):
             xml_content: BeautifulSoup = xml_parser_factory(data)
             temp = parse_file(content=xml_content, config=config, temp=temp)
             pbar.update()
-    print(json.dumps(temp.final, indent=2, ensure_ascii=False))
+    with open('test.json', 'w', encoding='utf-8') as f:
+        f.write(json.dumps(temp.final, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":

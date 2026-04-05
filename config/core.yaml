@@ -43,6 +43,7 @@ entities:
         attributes:
           - source: "@name"
             target: "name"
+            flatten_to_root: true
 
       tire_sets:
         selector: "tire_set"
@@ -310,3 +311,207 @@ entities:
               - source: "@direction_spread"
                 target: "direction_spread"
                 transform: "parse_vector2"
+  weapon:
+    selector: "weapon"
+    name: "weapon"
+    is_array: false
+
+    attributes:
+      - source: "@file"
+        target: "inherit_from"
+      - source: "@key"
+        target: "key"
+      - source: "#text"
+        target: "description"
+
+    children:
+      specification:
+        selector: "specification"
+        name: "specification"
+        is_array: false
+        attributes:
+          - source: "@retrigger_time"
+            target: "retrigger_time"
+            transform: "to_float"
+          - source: "@accuracy_factor"
+            target: "accuracy_factor"
+            transform: "to_float"
+          - source: "@sustained_fire_grow_step"
+            target: "sustained_fire_grow_step"
+            transform: "to_float"
+          - source: "@sustained_fire_diminish_rate"
+            target: "sustained_fire_diminish_rate"
+            transform: "to_float"
+          - source: "@magazine_size"
+            target: "magazine_size"
+            transform: "to_int"
+          - source: "@can_shoot_standing"
+            target: "can_shoot_standing"
+            transform: "to_bool"
+          - source: "@suppressed"
+            target: "suppressed"
+            transform: "to_bool"
+          - source: "@name"
+            target: "name"
+            flatten_to_root: true
+          - source: "@class"
+            target: "class"
+            transform: "to_int"
+          - source: "@reload_one_at_a_time"
+            target: "reload_one_at_a_time"
+            transform: "to_bool"
+          - source: "@sight_range_modifier"
+            target: "sight_range_modifier"
+            transform: "to_float"
+          - source: "@projectile_speed"
+            target: "projectile_speed"
+            transform: "to_float"
+          - source: "@projectiles_per_shot"
+            target: "projectiles_per_shot"
+            transform: "to_int"
+
+      animations:
+        selector: "animation"
+        name: "animations"
+        is_array: true
+        attributes:
+          - source: "@key"
+            target: "key"
+          - source: "@ref"
+            target: "ref"
+            transform: "to_int"
+          - source: "@animation_key"
+            target: "animation_key"
+          - source: "@stance_key"
+            target: "stance_key"
+
+      sounds:
+        selector: "sound"
+        name: "sounds"
+        is_array: true
+        attributes:
+          - source: "@key"
+            target: "key"
+          - source: "@fileref"
+            target: "fileref"
+          - source: "@pitch_variety"
+            target: "pitch_variety"
+            transform: "to_float"
+          - source: "@volume"
+            target: "volume"
+            transform: "to_float"
+          - source: "@class"
+            target: "class"
+
+      model:
+        selector: "model"
+        name: "model"
+        is_array: false
+        attributes:
+          - source: "@filename"
+            target: "filename"
+
+      hud_icon:
+        selector: "hud_icon"
+        name: "hud_icon"
+        is_array: false
+        attributes:
+          - source: "@filename"
+            target: "filename"
+
+      commonness:
+        selector: "commonness"
+        name: "commonness"
+        is_array: false
+        attributes:
+          - source: "@value"
+            target: "value"
+            transform: "to_float"
+          - source: "@can_respawn_with"
+            target: "can_respawn_with"
+            transform: "to_bool"
+          - source: "@in_stock"
+            target: "in_stock"
+            transform: "to_bool"
+
+      inventory:
+        selector: "inventory"
+        name: "inventory"
+        is_array: false
+        attributes:
+          - source: "@encumbrance"
+            target: "encumbrance"
+            transform: "to_float"
+          - source: "@price"
+            target: "price"
+            transform: "to_float"
+
+      capacities:
+        selector: "capacity"
+        name: "capacities"
+        is_array: true
+        attributes:
+          - source: "@value"
+            target: "value"
+            transform: "to_int"
+          - source: "@source"
+            target: "source"
+          - source: "@source_value"
+            target: "source_value"
+            transform: "to_float"
+
+      weak_hand_hold:
+        selector: "weak_hand_hold"
+        name: "weak_hand_hold"
+        is_array: false
+        attributes:
+          - source: "@offset"
+            target: "offset"
+            transform: "to_float"
+
+      projectile:
+        selector: "projectile"
+        name: "projectile"
+        is_array: false
+        attributes:
+          - source: "@file"
+            target: "file"
+        children:
+          result:
+            selector: "result"
+            name: "result"
+            is_array: false
+            attributes:
+              - source: "@class"
+                target: "class"
+              - source: "@kill_probability"
+                target: "kill_probability"
+                transform: "to_float"
+              - source: "@kill_decay_start_time"
+                target: "kill_decay_start_time"
+                transform: "to_float"
+              - source: "@kill_decay_end_time"
+                target: "kill_decay_end_time"
+                transform: "to_float"
+
+      stances:
+        selector: "stance"
+        name: "stances"
+        is_array: true
+        attributes:
+          - source: "@state_key"
+            target: "state_key"
+          - source: "@accuracy"
+            target: "accuracy"
+            transform: "to_float"
+
+      modifiers:
+        selector: "modifier"
+        name: "modifiers"
+        is_array: true
+        attributes:
+          - source: "@class"
+            target: "class"
+          - source: "@value"
+            target: "value"
+            transform: "to_float"
