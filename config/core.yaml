@@ -1,2 +1,87 @@
+# RWR 载具解析配置 - 最终版（支持重复标签数组 + 继承 + 归一化）
 package_path:
   - "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RunningWithRifles\\media\\packages\\vanilla"
+
+# 继承支持（自动读取 file="vehicle_base.vehicle"）
+inherit:
+  enabled: true
+  base_attr: "file"
+
+# 实体解析规则（严格遵循你的格式）
+entities:
+  - vehicle:
+      # ====================== 根属性 ======================
+      - tag: "@name"
+        abbr: "name"
+        to: "name"
+      - tag: "@key"
+        abbr: "key"
+        to: "key"
+      - tag: "@file"
+        abbr: "inherit"
+        to: "inherit_from"
+      - tag: "@respawn_time"
+        abbr: "respawn"
+        to: "respawn_time"
+      - tag: "@time_to_live_unsteerable"
+        abbr: "ttl_unsteer"
+        to: "uncontrollable_ttl"
+      - tag: "@minimum_fill_requirement"
+        abbr: "fuel_min"
+        to: "min_fuel"
+
+      # ====================== 标签组 ======================
+      - tag: "tag/@name"
+        abbr: "tags"
+        to: "tags"
+
+      # ====================== 轮胎（多组） ======================
+      - tag: "tire_set"
+        abbr: "tires"
+        to: "tires"
+        multi: true # 标记：多元素 → 数组
+
+      # ====================== 乘员（多座位） ======================
+      - tag: "character_slot"
+        abbr: "seats"
+        to: "seats"
+        multi: true # 数组
+
+      # ====================== 核心：目标优先级（重复标签！） ======================
+      - tag: "target_factors"
+        abbr: "targets"
+        to: "target_factors"
+        multi: true
+        sub_attrs:
+          - tag: "@tag"
+            to: "tag"
+          - tag: "@distance"
+            to: "distance"
+          - tag: "@direction"
+            to: "direction"
+          - tag: "@squad_command"
+            to: "squad_command"
+          - tag: "@base_score"
+            to: "score"
+
+      # ====================== 音效（多条） ======================
+      - tag: "rev_sound"
+        abbr: "engine_sfx"
+        to: "engine_sounds"
+        multi: true
+      - tag: "sound"
+        abbr: "sfx"
+        to: "sounds"
+        multi: true
+
+      # ====================== 特效（多条） ======================
+      - tag: "effect"
+        abbr: "fx"
+        to: "effects"
+        multi: true
+
+      # ====================== 事件奖励（多条） ======================
+      - tag: "event"
+        abbr: "events"
+        to: "events"
+        multi: true

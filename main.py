@@ -30,16 +30,27 @@ def main_procces(config: Config):
                     else:
                         raise RuntimeError
                 except:
-
                     temp.res_file.append(os.path.basename(path))
                     continue
         return temp
 
-    temp = scan(config, temp)
+    temp: Temp = scan(config, temp)
 
-    print(len(temp.conf_file), len(temp.res_file))
-    with open("test.txt", 'w') as f:
-        f.writelines([str(temp.conf_file), "\n\n", str(temp.res_file)])
+    Plogger.debug(
+        f"configuration: {len(temp.conf_file)} resource: {len(temp.res_file)} ")
+    conf_type = {}
+    for item in temp.conf_file:
+        conf_type[str(os.path.basename(item)).split(".")[1]] = 0
+    res_type = {}
+    for item in temp.res_file:
+        try:
+            res_type[str(os.path.basename(item)).split(".")[1]] = 0
+        except:
+            pass
+    Plogger.debug(
+        f"configuration types: {list(conf_type.keys())} ")
+    Plogger.debug(
+        f"resource: {list(res_type.keys())} ")
 
 
 if __name__ == "__main__":
