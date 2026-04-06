@@ -1,13 +1,17 @@
-# RWR 车辆解析配置
 package_path:
   - "C:\\Users\\hongx\\Documents\\test_sub"
+  # - "C:\\Program Files (x86)\\Steam\\steamapps\\common\\RunningWithRifles\\media\\packages\\vanilla"
 output_format: "json"
 pretty_print: true
 include_source: false
+sort:
+  enable: true
+  primarykey: "key"
 
 defaults:
   inherit_enabled: true
-  base_attr: "file"
+  base_attr: "inherit_from"
+  must_have_attr: ["key"]
 
 entities:
   vehicle:
@@ -34,6 +38,83 @@ entities:
       - source: "@minimum_fill_requirement"
         target: "min_fuel"
         transform: "to_float"
+      # 扁平化的 control 属性
+      - source: "control/@max_speed"
+        target: "max_speed"
+        transform: "to_float"
+      - source: "control/@acceleration"
+        target: "acceleration"
+        transform: "to_float"
+      - source: "control/@max_reverse_speed"
+        target: "max_reverse_speed"
+        transform: "to_float"
+      - source: "control/@min_health_to_steer"
+        target: "min_health_to_steer"
+        transform: "to_float"
+      - source: "control/@max_rotation"
+        target: "max_rotation"
+        transform: "to_float"
+      - source: "control/@max_water_depth"
+        target: "max_water_depth"
+        transform: "to_float"
+      - source: "control/@steer_smoothening"
+        target: "steer_smoothening"
+        transform: "to_float"
+      # 扁平化的 physics 属性
+      - source: "physics/@max_health"
+        target: "max_health"
+        transform: "to_float"
+      - source: "physics/@blast_damage_threshold"
+        target: "blast_damage_threshold"
+        transform: "to_float"
+      - source: "physics/@mass"
+        target: "mass"
+        transform: "to_float"
+      - source: "physics/@broken_mass"
+        target: "broken_mass"
+        transform: "to_float"
+      - source: "physics/@remove_collision_threshold"
+        target: "remove_collision_threshold"
+        transform: "to_float"
+      - source: "physics/@extent"
+        target: "extent"
+        transform: "parse_vector3"
+      - source: "physics/@offset"
+        target: "offset"
+        transform: "parse_vector3"
+      - source: "physics/@top_offset"
+        target: "top_offset"
+        transform: "parse_vector3"
+      - source: "physics/@collision_model_pos"
+        target: "collision_model_pos"
+        transform: "parse_vector3"
+      - source: "physics/@collision_model_extent"
+        target: "collision_model_extent"
+        transform: "parse_vector3"
+      - source: "physics/@visual_offset"
+        target: "visual_offset"
+        transform: "parse_vector3"
+      - source: "physics/@friction_offset"
+        target: "friction_offset"
+        transform: "to_float"
+      - source: "physics/@drag_offset"
+        target: "drag_offset"
+        transform: "to_float"
+      # 扁平化的 turret 属性
+      - source: "turret/@offset"
+        target: "turret_offset"
+        transform: "parse_vector3"
+      - source: "turret/@weapon_key"
+        target: "turret_weapon_key"
+      - source: "turret/@weapon_offset"
+        target: "turret_weapon_offset"
+        transform: "parse_vector3"
+      - source: "turret/@weapon_recoil"
+        target: "turret_weapon_recoil"
+        transform: "to_float"
+      - source: "turret/@max_rotation_step"
+        target: "turret_max_rotation_step"
+        transform: "to_float"
 
     children:
       tags:
@@ -43,7 +124,6 @@ entities:
         attributes:
           - source: "@name"
             target: "name"
-            flatten_to_root: true
 
       tire_sets:
         selector: "tire_set"
@@ -55,98 +135,6 @@ entities:
             transform: "parse_vector3"
           - source: "@radius"
             target: "radius"
-            transform: "to_float"
-
-      control:
-        selector: "control"
-        name: "control"
-        is_array: false
-        attributes:
-          - source: "@max_speed"
-            target: "max_speed"
-            transform: "to_float"
-          - source: "@acceleration"
-            target: "acceleration"
-            transform: "to_float"
-          - source: "@max_reverse_speed"
-            target: "max_reverse_speed"
-            transform: "to_float"
-          - source: "@min_health_to_steer"
-            target: "min_health_to_steer"
-            transform: "to_float"
-          - source: "@max_rotation"
-            target: "max_rotation"
-            transform: "to_float"
-          - source: "@max_water_depth"
-            target: "max_water_depth"
-            transform: "to_float"
-          - source: "@steer_smoothening"
-            target: "steer_smoothening"
-            transform: "to_float"
-
-      physics:
-        selector: "physics"
-        name: "physics"
-        is_array: false
-        attributes:
-          - source: "@max_health"
-            target: "max_health"
-            transform: "to_float"
-          - source: "@blast_damage_threshold"
-            target: "blast_damage_threshold"
-            transform: "to_float"
-          - source: "@mass"
-            target: "mass"
-            transform: "to_float"
-          - source: "@broken_mass"
-            target: "broken_mass"
-            transform: "to_float"
-          - source: "@remove_collision_threshold"
-            target: "remove_collision_threshold"
-            transform: "to_float"
-          - source: "@extent"
-            target: "extent"
-            transform: "parse_vector3"
-          - source: "@offset"
-            target: "offset"
-            transform: "parse_vector3"
-          - source: "@top_offset"
-            target: "top_offset"
-            transform: "parse_vector3"
-          - source: "@collision_model_pos"
-            target: "collision_model_pos"
-            transform: "parse_vector3"
-          - source: "@collision_model_extent"
-            target: "collision_model_extent"
-            transform: "parse_vector3"
-          - source: "@visual_offset"
-            target: "visual_offset"
-            transform: "parse_vector3"
-          - source: "@friction_offset"
-            target: "friction_offset"
-            transform: "to_float"
-          - source: "@drag_offset"
-            target: "drag_offset"
-            transform: "to_float"
-
-      turret:
-        selector: "turret"
-        name: "turret"
-        is_array: false
-        attributes:
-          - source: "@offset"
-            target: "offset"
-            transform: "parse_vector3"
-          - source: "@weapon_key"
-            target: "weapon_key"
-          - source: "@weapon_offset"
-            target: "weapon_offset"
-            transform: "parse_vector3"
-          - source: "@weapon_recoil"
-            target: "weapon_recoil"
-            transform: "to_float"
-          - source: "@max_rotation_step"
-            target: "max_rotation_step"
             transform: "to_float"
 
       visuals:
@@ -323,53 +311,80 @@ entities:
         target: "key"
       - source: "#text"
         target: "description"
+      # 扁平化的 specification 属性
+      - source: "specification/@retrigger_time"
+        target: "retrigger_time"
+        transform: "to_float"
+      - source: "specification/@accuracy_factor"
+        target: "accuracy_factor"
+        transform: "to_float"
+      - source: "specification/@sustained_fire_grow_step"
+        target: "sustained_fire_grow_step"
+        transform: "to_float"
+      - source: "specification/@sustained_fire_diminish_rate"
+        target: "sustained_fire_diminish_rate"
+        transform: "to_float"
+      - source: "specification/@magazine_size"
+        target: "magazine_size"
+        transform: "to_int"
+      - source: "specification/@can_shoot_standing"
+        target: "can_shoot_standing"
+        transform: "to_bool"
+      - source: "specification/@suppressed"
+        target: "suppressed"
+        transform: "to_bool"
+      - source: "specification/@name"
+        target: "name"
+        flatten_to_root: true
+      - source: "specification/@class"
+        target: "class"
+        transform: "to_int"
+      - source: "specification/@reload_one_at_a_time"
+        target: "reload_one_at_a_time"
+        transform: "to_bool"
+      - source: "specification/@sight_range_modifier"
+        target: "sight_range_modifier"
+        transform: "to_float"
+      - source: "specification/@projectile_speed"
+        target: "projectile_speed"
+        transform: "to_float"
+      - source: "specification/@projectiles_per_shot"
+        target: "projectiles_per_shot"
+        transform: "to_int"
+      # 扁平化的 model 属性
+      - source: "model/@filename"
+        target: "model_filename"
+      # 扁平化的 hud_icon 属性
+      - source: "hud_icon/@filename"
+        target: "hud_icon_filename"
+      # 扁平化的 inventory 属性
+      - source: "inventory/@encumbrance"
+        target: "inventory_encumbrance"
+        transform: "to_float"
+      - source: "inventory/@price"
+        target: "inventory_price"
+        transform: "to_float"
+      # 扁平化的 weak_hand_hold 属性
+      - source: "weak_hand_hold/@offset"
+        target: "weak_hand_hold_offset"
+        transform: "to_float"
+      # 扁平化的 projectile 属性
+      - source: "projectile/@file"
+        target: "projectile_file"
+      # 扁平化的 projectile/result 属性
+      - source: "projectile/result/@class"
+        target: "projectile_result_class"
+      - source: "projectile/result/@kill_probability"
+        target: "projectile_result_kill_probability"
+        transform: "to_float"
+      - source: "projectile/result/@kill_decay_start_time"
+        target: "projectile_result_kill_decay_start_time"
+        transform: "to_float"
+      - source: "projectile/result/@kill_decay_end_time"
+        target: "projectile_result_kill_decay_end_time"
+        transform: "to_float"
 
     children:
-      specification:
-        selector: "specification"
-        name: "specification"
-        is_array: false
-        attributes:
-          - source: "@retrigger_time"
-            target: "retrigger_time"
-            transform: "to_float"
-          - source: "@accuracy_factor"
-            target: "accuracy_factor"
-            transform: "to_float"
-          - source: "@sustained_fire_grow_step"
-            target: "sustained_fire_grow_step"
-            transform: "to_float"
-          - source: "@sustained_fire_diminish_rate"
-            target: "sustained_fire_diminish_rate"
-            transform: "to_float"
-          - source: "@magazine_size"
-            target: "magazine_size"
-            transform: "to_int"
-          - source: "@can_shoot_standing"
-            target: "can_shoot_standing"
-            transform: "to_bool"
-          - source: "@suppressed"
-            target: "suppressed"
-            transform: "to_bool"
-          - source: "@name"
-            target: "name"
-            flatten_to_root: true
-          - source: "@class"
-            target: "class"
-            transform: "to_int"
-          - source: "@reload_one_at_a_time"
-            target: "reload_one_at_a_time"
-            transform: "to_bool"
-          - source: "@sight_range_modifier"
-            target: "sight_range_modifier"
-            transform: "to_float"
-          - source: "@projectile_speed"
-            target: "projectile_speed"
-            transform: "to_float"
-          - source: "@projectiles_per_shot"
-            target: "projectiles_per_shot"
-            transform: "to_int"
-
       animations:
         selector: "animation"
         name: "animations"
@@ -403,22 +418,6 @@ entities:
           - source: "@class"
             target: "class"
 
-      model:
-        selector: "model"
-        name: "model"
-        is_array: false
-        attributes:
-          - source: "@filename"
-            target: "filename"
-
-      hud_icon:
-        selector: "hud_icon"
-        name: "hud_icon"
-        is_array: false
-        attributes:
-          - source: "@filename"
-            target: "filename"
-
       commonness:
         selector: "commonness"
         name: "commonness"
@@ -434,18 +433,6 @@ entities:
             target: "in_stock"
             transform: "to_bool"
 
-      inventory:
-        selector: "inventory"
-        name: "inventory"
-        is_array: false
-        attributes:
-          - source: "@encumbrance"
-            target: "encumbrance"
-            transform: "to_float"
-          - source: "@price"
-            target: "price"
-            transform: "to_float"
-
       capacities:
         selector: "capacity"
         name: "capacities"
@@ -459,40 +446,6 @@ entities:
           - source: "@source_value"
             target: "source_value"
             transform: "to_float"
-
-      weak_hand_hold:
-        selector: "weak_hand_hold"
-        name: "weak_hand_hold"
-        is_array: false
-        attributes:
-          - source: "@offset"
-            target: "offset"
-            transform: "to_float"
-
-      projectile:
-        selector: "projectile"
-        name: "projectile"
-        is_array: false
-        attributes:
-          - source: "@file"
-            target: "file"
-        children:
-          result:
-            selector: "result"
-            name: "result"
-            is_array: false
-            attributes:
-              - source: "@class"
-                target: "class"
-              - source: "@kill_probability"
-                target: "kill_probability"
-                transform: "to_float"
-              - source: "@kill_decay_start_time"
-                target: "kill_decay_start_time"
-                transform: "to_float"
-              - source: "@kill_decay_end_time"
-                target: "kill_decay_end_time"
-                transform: "to_float"
 
       stances:
         selector: "stance"
@@ -515,3 +468,134 @@ entities:
           - source: "@value"
             target: "value"
             transform: "to_float"
+  projectile:
+    selector: "projectile"
+    name: "projectile"
+    is_array: false
+
+    attributes:
+      - source: "@file"
+        target: "inherit_from"
+      - source: "@class"
+        target: "class"
+      - source: "@name"
+        target: "name"
+        flatten_to_root: true
+      - source: "@key"
+        target: "key"
+      - source: "@slot"
+        target: "slot"
+        transform: "to_int"
+      - source: "@radius"
+        target: "radius"
+        transform: "to_float"
+      - source: "@drop_count_factor_on_death"
+        target: "drop_count_factor_on_death"
+        transform: "to_float"
+      # 扁平化的 result 属性
+      - source: "result/@class"
+        target: "result_class"
+      - source: "result/@key"
+        target: "result_key"
+
+    children:
+      tags:
+        selector: "tag"
+        name: "tags"
+        is_array: true
+        attributes:
+          - source: "@name"
+            target: "name"
+  carry_item:
+    selector: "carry_item"
+    name: "carry_item"
+    is_array: false
+
+    attributes:
+      - source: "@file"
+        target: "inherit_from"
+      - source: "@name"
+        target: "name"
+        flatten_to_root: true
+      - source: "@key"
+        target: "key"
+      - source: "@slot"
+        target: "slot"
+        transform: "to_int"
+      - source: "@transform_on_consume"
+        target: "transform_on_consume"
+      - source: "@time_to_live_out_in_the_open"
+        target: "time_to_live_out_in_the_open"
+        transform: "to_float"
+      - source: "@player_death_drop_owner_lock_time"
+        target: "player_death_drop_owner_lock_time"
+        transform: "to_float"
+      # 扁平化的 hud_icon 属性
+      - source: "hud_icon/@filename"
+        target: "hud_icon_filename"
+      # 扁平化的 inventory 属性
+      - source: "inventory/@encumbrance"
+        target: "inventory_encumbrance"
+        transform: "to_int"
+      - source: "inventory/@price"
+        target: "inventory_price"
+        transform: "to_int"
+      # 扁平化的 model 属性
+      - source: "model/@mesh_filename"
+        target: "model_mesh"
+      # 扁平化的 commonness 属性
+      - source: "commonness/@value"
+        target: "commonness_value"
+        transform: "to_float"
+      - source: "commonness/@in_stock"
+        target: "commonness_in_stock"
+        transform: "to_int"
+      - source: "commonness/@can_respawn_with"
+        target: "commonness_can_respawn_with"
+        transform: "to_int"
+
+    children:
+      capacity:
+        selector: "capacity"
+        name: "capacities"
+        is_array: true
+        attributes:
+          - source: "@value"
+            target: "value"
+            transform: "to_int"
+          - source: "@source"
+            target: "source"
+          - source: "@source_value"
+            target: "source_value"
+            transform: "to_float"
+
+      modifier:
+        selector: "modifier"
+        name: "modifiers"
+        is_array: true
+        attributes:
+          - source: "@class"
+            target: "class"
+          - source: "@value"
+            target: "value"
+            transform: "to_float"
+          - source: "@input_character_state"
+            target: "input_character_state"
+          - source: "@output_character_state"
+            target: "output_character_state"
+          - source: "@consumes_item"
+            target: "consumes_item"
+            transform: "to_int"
+          - source: "@instance_class"
+            target: "instance_class"
+          - source: "@instance_key"
+            target: "instance_key"
+          - source: "@min_amount"
+            target: "min_amount"
+            transform: "to_int"
+          - source: "@max_amount"
+            target: "max_amount"
+            transform: "to_int"
+          - source: "@offset"
+            target: "offset"
+            transform: "parse_vector3"

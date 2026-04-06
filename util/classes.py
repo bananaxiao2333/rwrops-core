@@ -1,3 +1,4 @@
+from gc import enable
 import os
 from typing import List, Optional, Dict, Any, Union, Callable
 from pydantic import BaseModel, Field, field_validator, ConfigDict
@@ -24,17 +25,20 @@ class AttributeMapping:
     target: str
     transform: Optional[TransformType] = None
     flatten_to_root: bool = False
+    unique: bool = False
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'AttributeMapping':
         transform_str = data.get('transform')
         transform = TransformType(transform_str) if transform_str else None
         flatten_to_root = data.get('flatten_to_root', False)
+        unique = data.get('unique', False)
         return cls(
             source=data['source'],
             target=data['target'],
             transform=transform,
-            flatten_to_root=flatten_to_root
+            flatten_to_root=flatten_to_root,
+            unique=unique
         )
 
 
@@ -74,6 +78,12 @@ class EntityConfig:
 
 
 @dataclass
+class SortConfig:
+    enable: bool = field(default=False)
+    primarykey: str = field(default='key')
+
+
+@dataclass
 class Config:
     """解析器主配置"""
     CONFIGFILE: str
@@ -81,9 +91,11 @@ class Config:
     output_format: str
     pretty_print: bool
     include_source: bool
+    sort: SortConfig
 
     defaults: Dict[str, Any] = field(default_factory=dict)
     entities: Dict[str, EntityConfig] = field(default_factory=dict)
+    must_have_attr: List[str] = field(default_factory=list)
 
     def __post_init__(self):
         """Convert dictionary entities to EntityConfig objects after initialization."""
@@ -91,11 +103,13 @@ class Config:
             converted_entities = {}
             for entity_name, entity_data in self.entities.items():
                 if isinstance(entity_data, dict):
-                    converted_entities[entity_name] = EntityConfig.from_dict(entity_data)
+                    converted_entities[entity_name] = EntityConfig.from_dict(
+                        entity_data)
                 elif isinstance(entity_data, EntityConfig):
                     converted_entities[entity_name] = entity_data
                 else:
-                    raise ValueError(f"Invalid entity configuration for {entity_name}")
+                    raise ValueError(
+                        f"Invalid entity configuration for {entity_name}")
             self.entities = converted_entities
 
     @field_validator('package_path')
@@ -125,7 +139,9 @@ class Config:
                 if attr.transform:
                     attr_dict['transform'] = attr.transform.value
                 if attr.flatten_to_root:
-                    attr_dict['flatten_to_root'] = attr.flatten_to_root
+                    attr_dict['flatten_to_root'] = str(attr.flatten_to_root)
+                if attr.unique:
+                    attr_dict['unique'] = str(attr.unique)
                 result['attributes'].append(attr_dict)
 
         # 递归转换子实体
@@ -154,3 +170,4 @@ class Temp(BaseModel):
     res_file: List[str] = Field(default_factory=list)
     conf_file: List[str] = Field(default_factory=list)
     final: List[Dict[str, Any]] = Field(default_factory=list)
+    sorted_final: Dict[str, Dict[str, Dict]] = {}

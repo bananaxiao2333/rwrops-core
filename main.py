@@ -1,7 +1,9 @@
+from ast import List
 import json
 import logging
 import os
 from pathlib import Path
+from typing import Dict
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
@@ -13,6 +15,21 @@ from util.timer import timer
 
 Clogger.init_color_logger()
 logger = logging.getLogger("ROOT")
+
+
+def clean_final(temp: Temp, primarykey: str) -> Temp:
+    ret: Dict[str, Dict[str, Dict]] = {}
+    for item in temp.final:
+        type = item.get('type')
+        key = item.get(primarykey)
+        if key and type:
+            if not ret.get(type):
+                ret[type] = {}  # create one if don't have
+            ret[type][key] = item
+    for item in ret:
+        sorted(item.items(), key=lambda kv: (kv[1], kv[0]))
+    temp.sorted_final = ret
+    return temp
 
 
 @timer
@@ -60,8 +77,13 @@ def main_procces(config: Config):
             xml_content: BeautifulSoup = xml_parser_factory(data)
             temp = parse_file(content=xml_content, config=config, temp=temp)
             pbar.update()
-    with open('test.json', 'w', encoding='utf-8') as f:
-        f.write(json.dumps(temp.final, indent=2, ensure_ascii=False))
+
+    to_dump = temp.final
+    if config.sort['enable']:
+        temp = clean_final(temp, config.sort['primarykey'])
+        to_dump = temp.sorted_final
+    with open('result.json', 'w', encoding='utf-8') as f:
+        f.write(json.dumps(to_dump, ensure_ascii=False))
 
 
 if __name__ == "__main__":
