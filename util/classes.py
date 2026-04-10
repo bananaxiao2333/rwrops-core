@@ -1,12 +1,6 @@
-from gc import enable
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field, field_validator, ConfigDict, model_validator
 import os
-from typing import List, Optional, Dict, Any, Union, Callable
-from pydantic import BaseModel, Field, field_validator, ConfigDict
-
-
-import yaml
-from typing import Dict, List, Any, Optional, Union
-from dataclasses import dataclass, field
 from enum import Enum
 
 
@@ -18,9 +12,9 @@ class TransformType(Enum):
     PARSE_VECTOR2 = "parse_vector2"
 
 
-@dataclass
-class AttributeMapping:
-    """属性映射配置"""
+class AttributeMapping(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     source: str
     target: str
     transform: Optional[TransformType] = None
@@ -42,28 +36,25 @@ class AttributeMapping:
         )
 
 
-@dataclass
-class EntityConfig:
-    """实体配置基类"""
+class EntityConfig(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     selector: str
     name: str
     is_array: bool
-    attributes: List[AttributeMapping] = field(default_factory=list)
-    children: Dict[str, 'EntityConfig'] = field(default_factory=dict)
+    attributes: List[AttributeMapping] = Field(default_factory=list)
+    children: Dict[str, 'EntityConfig'] = Field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'EntityConfig':
-        # 提取基本字段
         selector = data.get('selector', '')
         name = data.get('name', '')
         is_array = data.get('is_array', False)
 
-        # 解析属性映射
         attributes = []
         for attr_data in data.get('attributes', []):
             attributes.append(AttributeMapping.from_dict(attr_data))
 
-        # 递归解析子实体
         children = {}
         for child_name, child_data in data.get('children', {}).items():
             children[child_name] = cls.from_dict(child_data)
@@ -77,15 +68,16 @@ class EntityConfig:
         )
 
 
-@dataclass
-class SortConfig:
-    enable: bool = field(default=False)
-    primarykey: str = field(default='key')
+class SortConfig(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
+    enable: bool = False
+    primarykey: str = 'key'
 
 
-@dataclass
-class Config:
-    """解析器主配置"""
+class Config(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+
     CONFIGFILE: str
     package_path: List[str]
     output_format: str
@@ -93,15 +85,16 @@ class Config:
     include_source: bool
     sort: SortConfig
 
-    defaults: Dict[str, Any] = field(default_factory=dict)
-    entities: Dict[str, EntityConfig] = field(default_factory=dict)
-    must_have_attr: List[str] = field(default_factory=list)
+    defaults: Dict[str, Any] = Field(default_factory=dict)
+    entities: Dict[str, EntityConfig] = Field(default_factory=dict)
+    must_have_attr: List[str] = Field(default_factory=list)
 
-    def __post_init__(self):
-        """Convert dictionary entities to EntityConfig objects after initialization."""
-        if isinstance(self.entities, dict):
+    @model_validator(mode='before')
+    @classmethod
+    def convert_entities_to_entity_config(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        if 'entities' in data and isinstance(data['entities'], dict):
             converted_entities = {}
-            for entity_name, entity_data in self.entities.items():
+            for entity_name, entity_data in data['entities'].items():
                 if isinstance(entity_data, dict):
                     converted_entities[entity_name] = EntityConfig.from_dict(
                         entity_data)
@@ -110,10 +103,17 @@ class Config:
                 else:
                     raise ValueError(
                         f"Invalid entity configuration for {entity_name}")
-            self.entities = converted_entities
+            data['entities'] = converted_entities
+
+        # 确保sort字段是SortConfig对象
+        if 'sort' in data and isinstance(data['sort'], dict):
+            data['sort'] = SortConfig(**data['sort'])
+
+        return data
 
     @field_validator('package_path')
-    def path_must_exists(cls, v):
+    @classmethod
+    def path_must_exists(cls, v: List[str]) -> List[str]:
         for item in v:
             if not os.path.exists(item):
                 raise RuntimeError(
@@ -121,14 +121,12 @@ class Config:
         return v
 
     def _entity_to_dict(self, entity: EntityConfig) -> Dict[str, Any]:
-        """将EntityConfig对象转换为字典"""
         result = {
             'selector': entity.selector,
             'name': entity.name,
             'is_array': entity.is_array
         }
 
-        # 转换属性映射
         if entity.attributes:
             result['attributes'] = []
             for attr in entity.attributes:
@@ -144,7 +142,6 @@ class Config:
                     attr_dict['unique'] = str(attr.unique)
                 result['attributes'].append(attr_dict)
 
-        # 递归转换子实体
         if entity.children:
             result['children'] = {}
             for child_name, child_config in entity.children.items():
@@ -154,11 +151,9 @@ class Config:
         return result
 
     def get_entity_config(self, entity_name: str) -> Optional[EntityConfig]:
-        """获取指定名称的实体配置"""
         return self.entities.get(entity_name)
 
     def get_child_config(self, parent_name: str, child_name: str) -> Optional[EntityConfig]:
-        """获取指定父实体的子实体配置"""
         parent = self.get_entity_config(parent_name)
         if parent:
             return parent.children.get(child_name)
@@ -167,7 +162,8 @@ class Config:
 
 class Temp(BaseModel):
     model_config = ConfigDict(extra='forbid')
+
     res_file: List[str] = Field(default_factory=list)
     conf_file: List[str] = Field(default_factory=list)
     final: List[Dict[str, Any]] = Field(default_factory=list)
-    sorted_final: Dict[str, Dict[str, Dict]] = {}
+    sorted_final: Dict[str, Dict[str, Dict]] = Field(default_factory=dict)

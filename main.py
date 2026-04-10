@@ -3,7 +3,7 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 import yaml
@@ -19,16 +19,50 @@ logger = logging.getLogger("ROOT")
 
 def clean_final(temp: Temp, primarykey: str) -> Temp:
     ret: Dict[str, Dict[str, Dict]] = {}
+
     for item in temp.final:
         type = item.get('type')
         key = item.get(primarykey)
+
         if key and type:
             if not ret.get(type):
-                ret[type] = {}  # create one if don't have
+                ret[type] = {}  # 如果这个类别不存在，创建一个
             ret[type][key] = item
-    for item in ret:
-        sorted(item.items(), key=lambda kv: (kv[1], kv[0]))
-    temp.sorted_final = ret
+
+    # 对每个类别按照primarykey排序
+    sorted_ret: Dict[str, Dict[str, Dict]] = {}
+
+    for type_name, type_data in ret.items():
+        if not type_data:
+            sorted_ret[type_name] = {}
+            continue
+
+        def get_sort_key(item_key: str, item_data: Dict) -> Any:
+            """尝试将键转换为数字进行比较，如果不能转换则保持原样"""
+            # 使用primarykey的值进行排序
+            sort_value = item_data.get(primarykey, item_key)
+
+            try:
+                # 尝试转换为整数
+                return int(sort_value)
+            except (ValueError, TypeError):
+                try:
+                    # 尝试转换为浮点数
+                    return float(sort_value)
+                except (ValueError, TypeError):
+                    # 如果都不是，保持字符串
+                    return str(sort_value)
+
+        # 按照primarykey排序
+        sorted_items = sorted(
+            type_data.items(),
+            key=lambda x: get_sort_key(x[0], x[1])
+        )
+
+        # 创建新的字典
+        sorted_ret[type_name] = {k: v for k, v in sorted_items}
+
+    temp.sorted_final = sorted_ret
     return temp
 
 
@@ -79,8 +113,8 @@ def main_procces(config: Config):
             pbar.update()
 
     to_dump = temp.final
-    if config.sort['enable']:
-        temp = clean_final(temp, config.sort['primarykey'])
+    if config.sort.enable:
+        temp = clean_final(temp, config.sort.primarykey)
         to_dump = temp.sorted_final
     with open('result.json', 'w', encoding='utf-8') as f:
         f.write(json.dumps(to_dump, ensure_ascii=False))
