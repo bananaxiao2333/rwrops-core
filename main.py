@@ -112,6 +112,33 @@ def main_procces(config: Config):
             temp = parse_file(content=xml_content, config=config, temp=temp)
             pbar.update()
 
+    # Export all .res files to assets folder
+    assets_dir = Path("assets")
+    assets_dir.mkdir(exist_ok=True)
+
+    res_files_exported = 0
+    for res_file_path in temp.res_file:
+        res_path = Path(res_file_path)
+        # Create the same relative directory structure under assets
+        relative_path = res_path.relative_to(res_path.parent.parent) if len(
+            res_path.parts) > 2 else res_path.name
+        destination = assets_dir / res_path.name
+        # If file already exists, add a number suffix to avoid overwriting
+        counter = 1
+        original_destination = destination
+        while destination.exists():
+            destination = assets_dir / \
+                f"{original_destination.stem}_{counter}{original_destination.suffix}"
+            counter += 1
+        try:
+            destination.write_bytes(res_path.read_bytes())
+            res_files_exported += 1
+        except Exception as e:
+            Plogger.warning(
+                f"Failed to copy {res_file_path} to {destination}: {e}")
+
+    Plogger.info(f"Exported {res_files_exported} .res files to assets folder")
+
     to_dump = temp.final
     if config.sort.enable:
         temp = clean_final(temp, config.sort.primarykey)

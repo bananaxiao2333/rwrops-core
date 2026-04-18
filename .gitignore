@@ -12,3 +12,4 @@ wheels/
 *.log
 logs/
 vanilla/
+assets/

@@ -399,7 +399,6 @@ entities:
       # 扁平化的 hud_icon 属性
       - source: "hud_icon/@filename"
         target: "hud_icon_filename"
-        flatten_to_root: true
       # 扁平化的 inventory 属性
       - source: "inventory/@encumbrance"
         target: "inventory_encumbrance"
@@ -540,41 +539,6 @@ entities:
         target: "result_class"
       - source: "result/@key"
         target: "result_key"
-      # Additional projectile-specific attributes from example file
-      - source: "@pulldown_in_air"
-        target: "pulldown_in_air"
-        transform: "to_float"
-      - source: "@on_ground_up"
-        target: "on_ground_up"
-        transform: "parse_vector3"
-      - source: "@can_be_disarmed"
-        target: "can_be_disarmed"
-        transform: "to_int"
-      - source: "@disarm_instance_class"
-        target: "disarm_instance_class"
-      - source: "@disarm_instance_key"
-        target: "disarm_instance_key"
-      - source: "@can_be_detected_by_driver"
-        target: "can_be_detected_by_driver"
-        transform: "to_int"
-      - source: "@can_be_detected_by_footmen"
-        target: "can_be_detected_by_footmen"
-        transform: "to_int"
-      - source: "@time_to_live_out_in_the_open"
-        target: "time_to_live_out_in_the_open"
-        transform: "to_float"
-      - source: "@visible_height"
-        target: "visible_height"
-        transform: "to_float"
-      - source: "@blast_damage_threshold"
-        target: "blast_damage_threshold"
-        transform: "to_float"
-      - source: "@use_time_to_live"
-        target: "use_time_to_live"
-        transform: "to_int"
-      - source: "@time_to_live"
-        target: "time_to_live"
-        transform: "to_float"
 
     children:
       tags:
@@ -584,211 +548,6 @@ entities:
         attributes:
           - source: "@name"
             target: "name"
-
-      # Collision elements (commented in example but should be supported)
-      collision:
-        selector: "collision"
-        name: "collision"
-        is_array: false
-        attributes:
-          - source: "@class"
-            target: "class"
-
-      # Rotation elements (multiple rotation elements possible)
-      rotations:
-        selector: "rotation"
-        name: "rotations"
-        is_array: true
-        attributes:
-          - source: "@class"
-            target: "class"
-
-      # Result elements (spawn results)
-      results:
-        selector: "result"
-        name: "results"
-        is_array: true
-        attributes:
-          - source: "@class"
-            target: "class"
-          - source: "@instance_class"
-            target: "instance_class"
-          - source: "@instance_key"
-            target: "instance_key"
-          - source: "@min_amount"
-            target: "min_amount"
-            transform: "to_int"
-          - source: "@max_amount"
-            target: "max_amount"
-            transform: "to_int"
-          - source: "@offset"
-            target: "offset"
-            transform: "parse_vector3"
-          - source: "@position_spread"
-            target: "position_spread"
-            transform: "parse_vector2"
-          - source: "@direction_spread"
-            target: "direction_spread"
-            transform: "parse_vector2"
-
-      # Trigger elements with nested colliders
-      triggers:
-        selector: "trigger"
-        name: "triggers"
-        is_array: true
-        attributes:
-          - source: "@class"
-            target: "class"
-        children:
-          colliders:
-            selector: "collider"
-            name: "colliders"
-            is_array: true
-            attributes:
-              - source: "@class"
-                target: "class"
-              - source: "@enabled"
-                target: "enabled"
-                transform: "to_int"
-              - source: "@faction_compare"
-                target: "faction_compare"
-
-      # Model element
-      models:
-        selector: "model"
-        name: "models"
-        is_array: true
-        attributes:
-          - source: "@mesh_filename"
-            target: "mesh_filename"
-          - source: "@texture_filename"
-            target: "texture_filename"
-
-      # HUD icon element
-      hud_icons:
-        selector: "hud_icon"
-        name: "hud_icons"
-        is_array: true
-        attributes:
-          - source: "@filename"
-            target: "hud_icon_filename"
-            flatten_to_root: true
-
-      # Throwable element (commented in example)
-      throwables:
-        selector: "throwable"
-        name: "throwables"
-        is_array: false
-        attributes:
-          - source: "@curve_height"
-            target: "curve_height"
-            transform: "to_float"
-          - source: "@near_far_distance"
-            target: "near_far_distance"
-            transform: "to_float"
-          - source: "@speed_estimation_near"
-            target: "speed_estimation_near"
-            transform: "to_float"
-          - source: "@speed_estimation_far"
-            target: "speed_estimation_far"
-            transform: "to_float"
-          - source: "@max_speed"
-            target: "max_speed"
-            transform: "to_float"
-          - source: "@randomness"
-            target: "randomness"
-            transform: "to_float"
-
-      # Commonness element
-      commonness:
-        selector: "commonness"
-        name: "commonness"
-        is_array: false
-        attributes:
-          - source: "@value"
-            target: "value"
-            transform: "to_float"
-          - source: "@can_respawn_with"
-            target: "can_respawn_with"
-            transform: "to_int"
-          - source: "@in_stock"
-            target: "in_stock"
-            transform: "to_int"
-
-      # Inventory element
-      inventory:
-        selector: "inventory"
-        name: "inventory"
-        is_array: false
-        attributes:
-          - source: "@encumbrance"
-            target: "encumbrance"
-            transform: "to_float"
-          - source: "@price"
-            target: "price"
-            transform: "to_float"
-
-      # Sound elements
-      sounds:
-        selector: "sound"
-        name: "sounds"
-        is_array: true
-        attributes:
-          - source: "@class"
-            target: "class"
-          - source: "@key"
-            target: "key"
-          - source: "@fileref"
-            target: "fileref"
-          - source: "@copy"
-            target: "copy"
-          - source: "@pitch_variety"
-            target: "pitch_variety"
-            transform: "to_float"
-          - source: "@volume"
-            target: "volume"
-            transform: "to_float"
-
-      # Effect elements
-      effects:
-        selector: "effect"
-        name: "effects"
-        is_array: true
-        attributes:
-          - source: "@class"
-            target: "class"
-          - source: "@key"
-            target: "key"
-          - source: "@type"
-            target: "type"
-          - source: "@ref"
-            target: "ref"
-          - source: "@surface_tag"
-            target: "surface_tag"
-          - source: "@size"
-            target: "size"
-            transform: "to_float"
-          - source: "@atlas_index"
-            target: "atlas_index"
-            transform: "to_int"
-          - source: "@layer"
-            target: "layer"
-            transform: "to_int"
-          - source: "@use_surface_color"
-            target: "use_surface_color"
-            transform: "to_int"
-          - source: "@post_processing"
-            target: "post_processing"
-            transform: "to_int"
-          - source: "@lighting"
-            target: "lighting"
-            transform: "to_int"
-          - source: "@shadow"
-            target: "shadow"
-            transform: "to_int"
-          - source: "@additive"
-            target: "additive"
-            transform: "to_int"
   carry_item:
     selector: "carry_item"
     name: "carry_item"
@@ -816,7 +575,6 @@ entities:
       # 扁平化的 hud_icon 属性
       - source: "hud_icon/@filename"
         target: "hud_icon_filename"
-        flatten_to_root: true
       # 扁平化的 inventory 属性
       - source: "inventory/@encumbrance"
         target: "inventory_encumbrance"
@@ -883,3 +641,18 @@ entities:
           - source: "@offset"
             target: "offset"
             transform: "parse_vector3"
+  translation:
+    selector: "translation"
+    name: "translation"
+    is_array: false
+
+    children:
+      texts:
+        selector: "text"
+        name: "texts"
+        is_array: true
+        attributes:
+          - source: "@key"
+            target: "key"
+          - source: "@text"
+            target: "translation"
