@@ -1,6 +1,8 @@
 import logging
 import os
+import re
 from pathlib import Path
+from typing import List, Optional
 import chardet
 from bs4 import BeautifulSoup
 from tqdm import tqdm
@@ -24,14 +26,22 @@ def xml_parser_factory(content: str) -> BeautifulSoup:
     return soup
 
 
-def walk_dir(path: Path):
+def walk_dir(path: Path, exclude_patterns: Optional[List[str]] = None):
+    patterns = [re.compile(p) for p in (exclude_patterns or [])]
+
+    def is_excluded(name: str) -> bool:
+        return any(p.fullmatch(name) for p in patterns)
+
     total = 0
     for root, dirs, files in os.walk(path, topdown=True):
-        total += len(files)
+        dirs[:] = [d for d in dirs if not is_excluded(d)]
+        total += len([f for f in files if not is_excluded(f)])
 
     with tqdm(range(total), desc='walk progress') as tbar:
         for root, dirs, files in os.walk(path, topdown=True):
+            dirs[:] = [d for d in dirs if not is_excluded(d)]
             for file in files:
-                yield Path(os.path.join(root, file))
+                if not is_excluded(file):
+                    yield Path(os.path.join(root, file))
                 tbar.set_description_str(root.replace(str(path), ""))
                 tbar.update()

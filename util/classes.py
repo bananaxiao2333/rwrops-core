@@ -88,6 +88,7 @@ class Config(BaseModel):
     defaults: Dict[str, Any] = Field(default_factory=dict)
     entities: Dict[str, EntityConfig] = Field(default_factory=dict)
     must_have_attr: List[str] = Field(default_factory=list)
+    exclude_patterns: List[str] = Field(default_factory=list)
 
     @model_validator(mode='before')
     @classmethod

@@ -75,7 +75,7 @@ def main_procces(config: Config):
     def scan(config: Config, temp: Temp) -> Temp:
         for package_path in config.package_path:
             Plogger.debug(f"walking in package '{package_path}'")
-            for path in walk_dir(Path(package_path)):
+            for path in walk_dir(Path(package_path), config.exclude_patterns):
                 try:
                     data = file_reader(path, size=5)
                     if data.startswith("<"):
@@ -107,9 +107,13 @@ def main_procces(config: Config):
 
     with tqdm(range(len(temp.conf_file)), desc="Files") as pbar:
         for item in temp.conf_file:
-            data: str = file_reader(Path(item))
-            xml_content: BeautifulSoup = xml_parser_factory(data)
-            temp = parse_file(content=xml_content, config=config, temp=temp)
+            try:
+                data: str = file_reader(Path(item))
+                xml_content: BeautifulSoup = xml_parser_factory(data)
+                temp = parse_file(content=xml_content,
+                                  config=config, temp=temp)
+            except Exception:
+                logger.warning(f"Error when parsing: {item}")
             pbar.update()
 
     # Export all .res files to assets folder

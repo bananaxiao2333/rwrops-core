@@ -7,6 +7,12 @@ include_source: false
 sort:
   enable: true
   primarykey: "key"
+exclude_patterns:
+  - models
+  - particles
+  - scripts.*
+  - sounds
+  - static_objects
 
 defaults:
   inherit_enabled: true
@@ -656,3 +662,361 @@ entities:
             target: "key"
           - source: "@text"
             target: "translation"
+
+  achievement:
+    selector: "achievement"
+    name: "achievement"
+    is_array: true
+
+    attributes:
+      - source: "@name"
+        target: "name"
+      - source: "@name"
+        target: "key"
+      - source: "@no_level_title"
+        target: "no_level_title"
+      - source: "@include_in_alltime_stats"
+        target: "include_in_alltime_stats"
+        transform: "to_int"
+      - source: "@file"
+        target: "external_file"
+
+    children:
+      levels:
+        selector: "level"
+        name: "levels"
+        is_array: true
+        attributes:
+          - source: "@steam_achievement_id"
+            target: "steam_achievement_id"
+          - source: "@journal_key"
+            target: "journal_key"
+        children:
+          notification:
+            selector: "notification"
+            name: "notification"
+            is_array: false
+            attributes:
+              - source: "@image"
+                target: "image"
+              - source: "@sound"
+                target: "sound"
+          rank:
+            selector: "rank"
+            name: "rank"
+            is_array: false
+            attributes:
+              - source: "@title"
+                target: "title"
+              - source: "@image"
+                target: "image"
+
+      criteria_list:
+        selector: "criteria"
+        name: "criteria_list"
+        is_array: true
+        attributes:
+          - source: "@class"
+            target: "class"
+          - source: "@owner"
+            target: "owner"
+          - source: "@stealth"
+            target: "stealth"
+            transform: "to_int"
+          - source: "@description"
+            target: "description"
+          - source: "@tag"
+            target: "tag"
+          - source: "@soldier_group"
+            target: "soldier_group"
+        children:
+          vehicles:
+            selector: "vehicle"
+            name: "vehicles"
+            is_array: true
+            attributes:
+              - source: "@key"
+                target: "key"
+              - source: "@tag"
+                target: "tag"
+          level_thresholds:
+            selector: "level"
+            name: "level_thresholds"
+            is_array: true
+            attributes:
+              - source: "@value"
+                target: "value"
+                transform: "to_int"
+
+  call:
+    selector: "call"
+    name: "call"
+    is_array: false
+
+    attributes:
+      - source: "@name"
+        target: "name"
+      - source: "@key"
+        target: "key"
+      - source: "@initiation_comment1"
+        target: "initiation_comment1"
+      - source: "@initiation_comment2"
+        target: "initiation_comment2"
+      - source: "@acknowledge_comment"
+        target: "acknowledge_comment"
+      - source: "@launch_comment"
+        target: "launch_comment"
+      - source: "@notify_metagame"
+        target: "notify_metagame"
+        transform: "to_int"
+      - source: "@match_skinpack"
+        target: "match_skinpack"
+
+    children:
+      rounds:
+        selector: "round"
+        name: "rounds"
+        is_array: true
+        attributes:
+          - source: "@instances"
+            target: "instances"
+            transform: "to_int"
+          - source: "@instance_class"
+            target: "instance_class"
+          - source: "@instance_key"
+            target: "instance_key"
+          - source: "@instance_spread"
+            target: "instance_spread"
+            transform: "parse_vector3"
+          - source: "@common_spread"
+            target: "common_spread"
+            transform: "parse_vector3"
+          - source: "@launch_time"
+            target: "launch_time"
+            transform: "to_float"
+          - source: "@spawn_time"
+            target: "spawn_time"
+            transform: "to_float"
+          - source: "@horizontal_offset_at_spawn"
+            target: "horizontal_offset_at_spawn"
+            transform: "to_float"
+          - source: "@vertical_offset_at_spawn"
+            target: "vertical_offset_at_spawn"
+            transform: "to_float"
+          - source: "@initial_speed_to_target"
+            target: "initial_speed_to_target"
+            transform: "to_float"
+          - source: "@avoid_objects"
+            target: "avoid_objects"
+            transform: "to_int"
+        children:
+          effects:
+            selector: "effect"
+            name: "effects"
+            is_array: true
+            attributes:
+              - source: "@class"
+                target: "class"
+              - source: "@ref"
+                target: "ref"
+              - source: "@shadow"
+                target: "shadow"
+                transform: "to_int"
+          sounds:
+            selector: "sound"
+            name: "sounds"
+            is_array: true
+            attributes:
+              - source: "@class"
+                target: "class"
+              - source: "@fileref"
+                target: "fileref"
+              - source: "@volume"
+                target: "volume"
+                transform: "to_float"
+
+      hud_icon:
+        selector: "hud_icon"
+        name: "hud_icon"
+        is_array: false
+        attributes:
+          - source: "@filename"
+            target: "filename"
+
+      capacities:
+        selector: "capacity"
+        name: "capacities"
+        is_array: true
+        attributes:
+          - source: "@value"
+            target: "value"
+            transform: "to_int"
+          - source: "@source"
+            target: "source"
+          - source: "@source_value"
+            target: "source_value"
+            transform: "to_float"
+
+      inventory:
+        selector: "inventory"
+        name: "inventory"
+        is_array: false
+        attributes:
+          - source: "@encumbrance"
+            target: "encumbrance"
+            transform: "to_float"
+          - source: "@price"
+            target: "price"
+            transform: "to_float"
+
+  faction:
+    selector: "faction"
+    name: "faction"
+    is_array: false
+
+    attributes:
+      - source: "@name"
+        target: "name"
+      - source: "@name"
+        target: "key"
+      - source: "@color"
+        target: "color"
+        transform: "parse_vector3"
+      - source: "@firstnames_file"
+        target: "firstnames_file"
+      - source: "@lastnames_file"
+        target: "lastnames_file"
+      - source: "@chat_icon_filename"
+        target: "chat_icon"
+      - source: "@chat_icon_filename_supporter"
+        target: "chat_icon_supporter"
+      - source: "@chat_icon_commander_filename"
+        target: "chat_icon_commander"
+      - source: "@campaign_completion_icon_filename"
+        target: "campaign_icon"
+      - source: "@radio_queue_size"
+        target: "radio_queue_size"
+        transform: "to_int"
+      - source: "@supporter_high_skinpack_xp"
+        target: "supporter_high_skinpack_xp"
+        transform: "to_float"
+
+    children:
+      ranks:
+        selector: "rank"
+        name: "ranks"
+        is_array: true
+        attributes:
+          - source: "@xp"
+            target: "xp"
+            transform: "to_float"
+          - source: "@name"
+            target: "name"
+        children:
+          rank_icon:
+            selector: "hud_icon"
+            name: "hud_icon"
+            is_array: false
+            attributes:
+              - source: "@filename"
+                target: "filename"
+
+      soldiers:
+        selector: "soldier"
+        name: "soldiers"
+        is_array: true
+        attributes:
+          - source: "@name"
+            target: "name"
+          - source: "@spawn_score"
+            target: "spawn_score"
+            transform: "to_float"
+          - source: "@squad_size_xp_cap"
+            target: "squad_size_xp_cap"
+            transform: "to_float"
+          - source: "@firstnames_file"
+            target: "firstnames_file"
+          - source: "@lastnames_file"
+            target: "lastnames_file"
+          - source: "character/@filename"
+            target: "character_file"
+          - source: "ai/@filename"
+            target: "ai_file"
+        children:
+          models:
+            selector: "models"
+            name: "models"
+            is_array: true
+            attributes:
+              - source: "@file"
+                target: "file"
+          resources:
+            selector: "resources"
+            name: "resources"
+            is_array: true
+            attributes:
+              - source: "@file"
+                target: "file"
+              - source: "@clear_weapons"
+                target: "clear_weapons"
+                transform: "to_int"
+              - source: "@clear_vehicles"
+                target: "clear_vehicles"
+                transform: "to_int"
+              - source: "@clear_calls"
+                target: "clear_calls"
+                transform: "to_int"
+              - source: "@clear_grenades"
+                target: "clear_grenades"
+                transform: "to_int"
+              - source: "@clear_carry_items"
+                target: "clear_carry_items"
+                transform: "to_int"
+            children:
+              item_overrides:
+                selector: "carry_item"
+                name: "item_overrides"
+                is_array: true
+                attributes:
+                  - source: "@key"
+                    target: "key"
+                  - source: "@enabled"
+                    target: "enabled"
+                    transform: "to_int"
+
+          item_existence:
+            selector: "item_class_existence"
+            name: "item_existence"
+            is_array: true
+            attributes:
+              - source: "@class"
+                target: "class"
+              - source: "@slot"
+                target: "slot"
+                transform: "to_int"
+              - source: "@probability"
+                target: "probability"
+                transform: "to_float"
+
+          attribute_configs:
+            selector: "attribute_config"
+            name: "attribute_configs"
+            is_array: true
+            attributes:
+              - source: "@class"
+                target: "class"
+            children:
+              attributes:
+                selector: "attribute"
+                name: "attributes"
+                is_array: true
+                attributes:
+                  - source: "@weight"
+                    target: "weight"
+                    transform: "to_float"
+                  - source: "@min"
+                    target: "min"
+                    transform: "to_float"
+                  - source: "@max"
+                    target: "max"
+                    transform: "to_float"

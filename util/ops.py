@@ -26,8 +26,17 @@ def parse_file(content: BeautifulSoup, config: Config, temp: Temp) -> Temp:
         else:
             entity_config_obj = entity_config
 
-        # Find all root elements matching the selector
-        root_elements = content.find_all(entity_config_obj.selector)
+        # Find root-level elements matching the selector
+        # Strategy: only match the document root element when it IS the entity type,
+        # to avoid picking up <call> stubs inside <resources>/<calls>/<map_config> etc.
+        # Exception: <achievements> is a known container for <achievement> children.
+        doc_root = content.find()
+        if doc_root is not None and doc_root.name == entity_config_obj.selector:
+            root_elements = [doc_root]
+        elif doc_root is not None and doc_root.name == "achievements":
+            root_elements = doc_root.find_all(entity_config_obj.selector, recursive=False)
+        else:
+            root_elements = []
 
         for root_element in root_elements:
             # Parse the entity with its configuration
